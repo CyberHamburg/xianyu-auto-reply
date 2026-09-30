@@ -30,7 +30,7 @@ if os.getenv('DOCKER_ENV'):
         logger.warning(f"设置SelectorEventLoop失败: {e}")
 
 try:
-    from playwright.async_api import async_playwright, Page, BrowserContext, Browser
+    from cloakbrowser.async_api import async_playwright, Page, BrowserContext, Browser
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
@@ -87,7 +87,7 @@ class BrowserManager:
 
         try:
             ensure_playwright_browser_path()
-            self.playwright = await async_playwright().start()
+            self.playwright = await cloakbrowser.acloakbrowser.sync_playwright().start()
 
             # 设置持久化数据目录
             self._user_data_dir = os.path.join(
@@ -114,7 +114,7 @@ class BrowserManager:
             )
             if chromium_path:
                 launch_kwargs["executable_path"] = chromium_path
-            self.context = await self.playwright.chromium.launch_persistent_context(
+            self.context = await self.cloakbrowser.chromiumlaunch_persistent_context(
                 self._user_data_dir,
                 **launch_kwargs,
             )

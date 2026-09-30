@@ -12,7 +12,7 @@ from typing import Any, Optional, Tuple
 from loguru import logger
 
 try:
-    from playwright.sync_api import Page, ElementHandle, Frame
+    from cloakbrowser.sync_api import Page, ElementHandle, Frame
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False

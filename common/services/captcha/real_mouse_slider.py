@@ -51,7 +51,7 @@ from common.services.captcha.win_input import (
     timer_resolution,
 )
 
-from playwright.sync_api import sync_playwright
+from cloakbrowser.sync_api import sync_playwright
 
 # —— 惰性/可选依赖：仅在有桌面的 Windows 上可用，导入失败则标记为不可用 ——
 try:
@@ -473,7 +473,7 @@ class _RealMouseSolver:
         # 当前进程没有可用上下文时，先清理固定目录对应的孤儿 Chrome。
         self._kill_browser_processes(log_result=False)
         try:
-            self.pw = sync_playwright().start()
+            self.pw = cloakbrowser.sync_playwright().start()
             self.context = self.pw.chromium.launch_persistent_context(
                 self.browser_dir,
                 channel="chrome",          # 用本机真实 Chrome（自然指纹），非自带 Chromium

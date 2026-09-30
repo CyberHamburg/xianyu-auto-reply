@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Optional
 
 from loguru import logger
-from playwright.async_api import Browser, BrowserContext, Page, async_playwright
+from cloakbrowser.async_api import Browser, BrowserContext, Page, async_playwright
 from common.utils.browser_utils import ensure_playwright_browser_path, get_chromium_executable_path
 from common.services.publish_image_service import cleanup_temp_images, download_remote_image
 
@@ -91,7 +91,7 @@ class XianyuPublisher:
             await self.close_only_browser()
 
         ensure_playwright_browser_path()
-        self.playwright = await async_playwright().start()
+        self.playwright = await cloakbrowser.acloakbrowser.sync_playwright().start()
 
         browser_args = [
             "--disable-blink-features=AutomationControlled",
@@ -114,7 +114,7 @@ class XianyuPublisher:
         if chromium_path:
             launch_kwargs["executable_path"] = chromium_path
 
-        self.browser = await self.playwright.chromium.launch(**launch_kwargs)
+        self.browser = await self.cloakbrowser.chromiumlaunch(**launch_kwargs)
 
         self.context = await self.browser.new_context(
             viewport={"width": 1920, "height": 1080},

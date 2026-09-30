@@ -1,41 +1,41 @@
 """
-数据库和Redis连接验证模块
+ݿRedis֤ģ
 
-功能：
-1. 验证MySQL连接是否正常
-2. 验证Redis连接是否正常
-3. 供GUI界面调用，验证用户填写的连接信息
+ܣ
+1. ֤MySQLǷ
+2. ֤RedisǷ
+3. GUIã֤ûдϢ
 """
 import socket
 
 
 def check_mysql_connection(host: str, port: int, user: str, password: str, database: str) -> dict:
     """
-    检查MySQL数据库连接
+    MySQLݿ
     
-    先通过socket检测端口是否可达，再尝试用pymysql建立真实连接。
+    ͨsocket˿Ƿɴٳpymysqlʵӡ
     
     Args:
-        host: MySQL主机地址
-        port: MySQL端口
-        user: 用户名
-        password: 密码
-        database: 数据库名
+        host: MySQLַ
+        port: MySQL˿
+        user: û
+        password: 
+        database: ݿ
     Returns:
-        字典包含:
-        - success: bool 连接是否成功
-        - message: str 结果说明
+        ֵ:
+        - success: bool Ƿɹ
+        - message: str ˵
     """
-    # 先检查端口可达性
+    # ȼ˿ڿɴ
     try:
         sock = socket.create_connection((host, port), timeout=5)
         sock.close()
     except socket.timeout:
-        return {"success": False, "message": f"连接超时：无法连接到 {host}:{port}"}
+        return {"success": False, "message": f"ӳʱ޷ӵ {host}:{port}"}
     except socket.error as e:
-        return {"success": False, "message": f"网络错误：{host}:{port} 不可达 - {e}"}
+        return {"success": False, "message": f"{host}:{port} ɴ - {e}"}
     
-    # 尝试真实数据库连接
+    # ʵݿ
     try:
         import pymysql
         conn = pymysql.connect(
@@ -49,39 +49,39 @@ def check_mysql_connection(host: str, port: int, user: str, password: str, datab
         )
         conn.ping(reconnect=False)
         conn.close()
-        return {"success": True, "message": "MySQL连接成功"}
+        return {"success": True, "message": "MySQLӳɹ"}
     except ImportError:
-        return {"success": False, "message": "缺少pymysql依赖，请检查安装"}
+        return {"success": False, "message": "ȱpymysql鰲װ"}
     except Exception as e:
-        return {"success": False, "message": f"MySQL连接失败: {e}"}
+        return {"success": False, "message": f"MySQLʧ: {e}"}
 
 
 def check_redis_connection(host: str, port: int, password: str, db: int) -> dict:
     """
-    检查Redis连接
+    Redis
     
-    尝试建立Redis连接并执行PING命令。
+    ԽRedisӲִPING
     
     Args:
-        host: Redis主机地址
-        port: Redis端口
-        password: Redis密码（可为空字符串）
-        db: Redis数据库编号
+        host: Redisַ
+        port: Redis˿
+        password: Redis루Ϊַ
+        db: Redisݿ
     Returns:
-        字典包含:
-        - success: bool 连接是否成功
-        - message: str 结果说明
+        ֵ:
+        - success: bool Ƿɹ
+        - message: str ˵
     """
-    # 先检查端口可达性
+    # ȼ˿ڿɴ
     try:
         sock = socket.create_connection((host, port), timeout=5)
         sock.close()
     except socket.timeout:
-        return {"success": False, "message": f"连接超时：无法连接到 {host}:{port}"}
+        return {"success": False, "message": f"ӳʱ޷ӵ {host}:{port}"}
     except socket.error as e:
-        return {"success": False, "message": f"网络错误：{host}:{port} 不可达 - {e}"}
+        return {"success": False, "message": f"{host}:{port} ɴ - {e}"}
     
-    # 尝试真实Redis连接
+    # ʵRedis
     try:
         import redis
         r = redis.Redis(
@@ -94,8 +94,8 @@ def check_redis_connection(host: str, port: int, password: str, db: int) -> dict
         )
         r.ping()
         r.close()
-        return {"success": True, "message": "Redis连接成功"}
+        return {"success": True, "message": "Redisӳɹ"}
     except ImportError:
-        return {"success": False, "message": "缺少redis依赖，请检查安装"}
+        return {"success": False, "message": "ȱredis鰲װ"}
     except Exception as e:
-        return {"success": False, "message": f"Redis连接失败: {e}"}
+        return {"success": False, "message": f"Redisʧ: {e}"}

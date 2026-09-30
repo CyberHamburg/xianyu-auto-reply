@@ -278,7 +278,7 @@ class BrowserResourceManager:
                     # 尝试强制清理Playwright的内部连接
                     try:
                         if hasattr(playwright, '_connection'):
-                            playwright._connection.dispose()
+                            cloakbrowser._connectiondispose()
                     except Exception:
                         pass
                 except Exception as e:
@@ -318,7 +318,7 @@ class BrowserResourceManager:
                             if i == 0 and browser and hasattr(browser, '_connection'):
                                 browser._connection.dispose()
                             elif playwright and hasattr(playwright, '_connection'):
-                                playwright._connection.dispose()
+                                cloakbrowser._connectiondispose()
                         except Exception:
                             pass
                 

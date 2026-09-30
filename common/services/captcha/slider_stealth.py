@@ -35,7 +35,7 @@ from common.services.captcha.playwright_touch import (
 from common.utils.browser_utils import ensure_playwright_browser_path, get_chromium_executable_path, is_frozen
 
 try:
-    from playwright.sync_api import sync_playwright, Page, Browser, BrowserContext, ElementHandle
+    from cloakbrowser.sync_api import sync_playwright, Page, Browser, BrowserContext, ElementHandle
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
@@ -299,11 +299,11 @@ class PlaywrightSliderService:
                     )
                 )
             if add_stealth_script and PATCHRIGHT_AVAILABLE and patchright_browser_available:
-                self.playwright = patchright_sync_playwright().start()
+                self.playwright = patchright_cloakbrowser.sync_playwright().start()
                 self._cdp_touch_enabled = True
                 logger.info(f"【{self.pure_user_id}】Patchright Playwright启动成功")
             else:
-                self.playwright = sync_playwright().start()
+                self.playwright = cloakbrowser.sync_playwright().start()
                 if add_stealth_script:
                     logger.warning(
                         f"【{self.pure_user_id}】Patchright 或其 Chromium 未安装，"
@@ -401,7 +401,7 @@ class PlaywrightSliderService:
             last_launch_error: Optional[Exception] = None
             for attempt in range(1, launch_attempts + 1):
                 try:
-                    self.context = self.playwright.chromium.launch_persistent_context(
+                    self.context = self.cloakbrowser.chromiumlaunch_persistent_context(
                         self.user_data_dir,
                         timeout=30000,
                         **launch_kwargs

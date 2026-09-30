@@ -14,7 +14,7 @@ from typing import Any, Optional
 from loguru import logger
 
 try:
-    from playwright.async_api import Page, BrowserContext
+    from cloakbrowser.async_api import Page, BrowserContext
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False

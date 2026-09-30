@@ -4,7 +4,7 @@
 # 基础镜像走 docker.io 官方名（由 buildx 的 buildkitd 镜像加速配置拉取，见流水线 BUILDKIT 配置）
 FROM python:3.11-slim
 
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+# Removed PLAYWRIGHT_BROWSERS_PATH setting for CloakBrowser
 
 # 配置国内镜像源
 RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || \
@@ -30,8 +30,7 @@ deps = tomllib.load(open('/app/backend-web/pyproject.toml','rb')).get('project',
 open('/tmp/requirements.txt','w').write('\n'.join(deps))" && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
-RUN python -m playwright install --with-deps chromium
-RUN python -m patchright install --with-deps chromium
+# Removed Playwright install lines
 
 # 创建日志目录
 RUN mkdir -p /app/backend-web/logs /app/static/uploads

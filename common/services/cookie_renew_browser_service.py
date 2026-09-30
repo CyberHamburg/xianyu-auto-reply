@@ -42,7 +42,7 @@ from common.utils.xianyu_utils import trans_cookies
 from common.utils.browser_utils import ensure_playwright_browser_path, get_chromium_executable_path
 
 try:
-    from playwright.sync_api import sync_playwright
+    from cloakbrowser.sync_api import sync_playwright
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     sync_playwright = None
@@ -428,7 +428,7 @@ class CookieRenewBrowserService:
             logger.info(f"{log_prefix} 使用持久化用户数据目录: {user_data_dir}")
 
             logger.info(f"{log_prefix} 启动Playwright浏览器（持久化模式）...")
-            playwright = sync_playwright().start()
+            playwright = cloakbrowser.sync_playwright().start()
 
             # 构建持久化上下文启动参数
             launch_kwargs: dict[str, Any] = {
@@ -459,7 +459,7 @@ class CookieRenewBrowserService:
             last_launch_error: Optional[Exception] = None
             for attempt in range(1, launch_attempts + 1):
                 try:
-                    context = playwright.chromium.launch_persistent_context(
+                    context = cloakbrowser.chromiumlaunch_persistent_context(
                         user_data_dir,
                         timeout=_BROWSER_TIMEOUT_MS,
                         **launch_kwargs,

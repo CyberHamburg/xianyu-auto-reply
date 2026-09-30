@@ -1,5 +1,5 @@
 """
-Playwright 浏览器工具模块
+CloakBrowser 浏览器工具模块
 
 功能：
 1. 检测是否运行在编译/打包模式

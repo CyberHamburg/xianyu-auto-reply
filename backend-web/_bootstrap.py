@@ -1,16 +1,16 @@
 """
-Backend-Web服务核心启动逻辑
+Backend-Web߼
 
-所有业务逻辑均在此文件中实现，main.py 仅作为最小入口桩。
+ҵ߼ڴļʵ֣main.py ΪС׮
 
-功能：
-1. 创建FastAPI应用
-2. 配置CORS
-3. 挂载静态文件目录
-4. 设置日志输出（使用loguru）
-5. 挂载API路由
-6. 统一错误处理
-7. 数据库连接检查
+ܣ
+1. FastAPIӦ
+2. CORS
+3. ؾ̬ļĿ¼
+4. ־ʹloguru
+5. API·
+6. ͳһ
+7. ݿӼ
 """
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ faulthandler.enable()
 
 settings = get_settings()
 
-# 配置日志（控制台 + 文件 + 第三方库拦截）
+# ־̨ + ļ + أ
 setup_logging(
     log_file=Path(__file__).parent / "logs" / "backend-web.log",
     log_level=settings.log_level,
@@ -46,73 +46,73 @@ setup_logging(
 
 async def check_database_connection():
     """
-    检查数据库连接
+    ݿ
     
-    如果连接失败，记录错误并退出服务
+    ʧܣ¼˳
     """
     try:
         from common.db.session import async_engine
         from sqlalchemy import text
         
-        logger.info("正在检查数据库连接...")
+        logger.info("ڼݿ...")
         async with async_engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
-        logger.info("数据库连接成功")
+        logger.info("ݿӳɹ")
         return True
     except Exception as e:
-        logger.error(f"数据库连接失败: {str(e)}")
-        logger.error("请检查数据库配置和网络连接")
-        logger.error(f"数据库地址: {settings.mysql_host}:{settings.mysql_port}/{settings.mysql_database}")
+        logger.error(f"ݿʧ: {str(e)}")
+        logger.error("ݿú")
+        logger.error(f"ݿַ: {settings.mysql_host}:{settings.mysql_port}/{settings.mysql_database}")
         return False
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期管理"""
-    logger.info(f"{settings.project_name} 启动中...")
-    logger.info(f"服务端口: {settings.service_port}")
-    logger.info(f"数据库: {settings.mysql_host}:{settings.mysql_port}/{settings.mysql_database}")
+    """Ӧڹ"""
+    logger.info(f"{settings.project_name} ...")
+    logger.info(f"˿: {settings.service_port}")
+    logger.info(f"ݿ: {settings.mysql_host}:{settings.mysql_port}/{settings.mysql_database}")
     
-    # 检查数据库连接
+    # ݿ
     if not await check_database_connection():
-        logger.error("数据库连接失败，服务退出")
+        logger.error("ݿʧܣ˳")
         sys.exit(1)
     
-    # 初始化数据库（创建表、默认数据等）
+    # ʼݿ⣨Ĭݵȣ
     try:
         from common.db.init_database import init_database
         await init_database()
     except Exception as e:
-        logger.error(f"数据库初始化失败: {e}")
+        logger.error(f"ݿʼʧ: {e}")
     
-    # 自检 JWT 密钥：弱/默认值时自动生成强随机密钥并持久化（源码启动兜底）
+    # Լ JWT Կ/ĬֵʱԶǿԿ־ûԴף
     try:
         from app.services.jwt_secret_service import ensure_jwt_secret_key
         await ensure_jwt_secret_key(settings)
     except Exception as e:
-        logger.error(f"JWT 密钥自检失败: {e}")
+        logger.error(f"JWT ԿԼʧ: {e}")
 
-    # 初始化服务间 API 令牌，多个服务通过数据库共享同一令牌。
+    # ʼ API ƣͨݿ⹲ͬһơ
     try:
         from common.utils.internal_token_service import ensure_internal_api_token
         await ensure_internal_api_token(settings)
     except Exception as e:
-        logger.error(f"内部 API 令牌初始化失败: {e}")
+        logger.error(f"ڲ API Ƴʼʧ: {e}")
         raise
 
-    # 自检 AI 铺货任务：把重启前遗留的进行中任务标记为失败，避免状态永远停在执行中
+    # Լ AI ̻񣺰ǰĽΪʧܣ״̬Զִͣ
     try:
         from app.services.ai_listing_task_service import mark_stale_running_failed
         await mark_stale_running_failed()
     except Exception as e:
-        logger.error(f"AI铺货任务自检失败: {e}")
+        logger.error(f"AI̻Լʧ: {e}")
 
-    # 从数据库加载日志保留天数配置
+    # ݿ־
     from common.utils.logging_utils import apply_db_log_retention, run_db_log_retention_sync
     await apply_db_log_retention()
     log_retention_sync_task = asyncio.create_task(run_db_log_retention_sync())
     
-    # 确保上传目录存在
+    # ȷϴĿ¼
     static_path = Path(settings.static_dir)
     upload_dirs = [
         static_path / "uploads",
@@ -127,46 +127,46 @@ async def lifespan(app: FastAPI):
     for upload_dir in upload_dirs:
         upload_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"静态文件目录: {static_path.absolute()}")
-    logger.info("所有上传子目录已创建")
+    logger.info(f"̬ļĿ¼: {static_path.absolute()}")
+    logger.info("ϴĿ¼Ѵ")
     
-    # 启动 Goofish 定时采集任务（可通过配置禁用）
+    #  Goofish ʱɼ񣨿ͨýã
     if settings.auto_start_crawl_jobs:
         try:
             await start_goofish_crawl_jobs()
         except Exception as e:
-            logger.error(f"启动 Goofish 定时采集任务失败: {e}")
+            logger.error(f" Goofish ʱɼʧ: {e}")
     else:
-        logger.info("已禁用自动启动Goofish定时采集任务（AUTO_START_CRAWL_JOBS=false）")
+        logger.info("ѽԶGoofishʱɼAUTO_START_CRAWL_JOBS=false")
     
     yield
     
-    logger.info(f"{settings.project_name} 关闭中...")
+    logger.info(f"{settings.project_name} ر...")
     
-    # 停止所有在线聊天IM会话
+    # ֹͣIMỰ
     try:
         from app.services.chat_new import get_im_session_manager
         chat_manager = get_im_session_manager()
         await chat_manager.disconnect_all()
-        logger.info("所有在线聊天IM会话已停止")
+        logger.info("IMỰֹͣ")
     except Exception as e:
-        logger.error(f"停止在线聊天IM会话失败: {e}")
+        logger.error(f"ֹͣIMỰʧ: {e}")
     
-    # 停止 Goofish 定时采集任务
+    # ֹͣ Goofish ʱɼ
     try:
         await stop_goofish_crawl_jobs()
     except Exception as e:
-        logger.error(f"停止 Goofish 定时采集任务失败: {e}")
+        logger.error(f"ֹͣ Goofish ʱɼʧ: {e}")
     
-    # 关闭HTTP客户端
+    # رHTTPͻ
     from app.core.http_client import close_http_client
     await close_http_client()
-    logger.info("HTTP客户端已关闭")
+    logger.info("HTTPͻѹر")
 
-    # 关闭复用的 goofish API 连接池
+    # رոõ goofish API ӳ
     from common.services.order_service import close_goofish_connector
     await close_goofish_connector()
-    logger.info("goofish API 连接池已关闭")
+    logger.info("goofish API ӳѹر")
 
     log_retention_sync_task.cancel()
     try:
@@ -176,18 +176,18 @@ async def lifespan(app: FastAPI):
 
 
 async def start_goofish_crawl_jobs():
-    """启动所有启用的 Goofish 定时采集任务"""
+    """õ Goofish ʱɼ"""
     from app.services.goofish_crawler import get_goofish_crawl_manager
     from common.db.session import async_session_maker
     from sqlalchemy import select
     from common.models.goofish_crawl_job import GoofishCrawlJob
     
-    logger.info("开始加载 Goofish 定时采集任务...")
+    logger.info("ʼ Goofish ʱɼ...")
     
     manager = get_goofish_crawl_manager()
     
     async with async_session_maker() as session:
-        # 查询所有启用的任务
+        # ѯõ
         result = await session.execute(
             select(GoofishCrawlJob).where(GoofishCrawlJob.enabled == True)
         )
@@ -198,33 +198,33 @@ async def start_goofish_crawl_jobs():
             try:
                 manager.start_job(job_id=job.id)
                 started_count += 1
-                logger.info(f"已启动 Goofish 采集任务: job_id={job.id}, keyword={job.keyword}")
+                logger.info(f" Goofish ɼ: job_id={job.id}, keyword={job.keyword}")
             except Exception as e:
-                logger.error(f"启动 Goofish 采集任务失败: job_id={job.id}, error={e}")
+                logger.error(f" Goofish ɼʧ: job_id={job.id}, error={e}")
         
-        logger.info(f"Goofish 定时采集任务启动完成，共启动 {started_count} 个任务")
+        logger.info(f"Goofish ʱɼɣ {started_count} ")
 
 
 async def stop_goofish_crawl_jobs():
-    """停止所有 Goofish 定时采集任务"""
+    """ֹͣ Goofish ʱɼ"""
     from app.services.goofish_crawler import get_goofish_crawl_manager
     
     try:
         manager = get_goofish_crawl_manager()
         await manager.stop_all()
-        logger.info("所有 Goofish 定时采集任务已停止")
+        logger.info(" Goofish ʱɼֹͣ")
     except Exception as e:
-        logger.error(f"停止 Goofish 定时采集任务失败: {e}")
+        logger.error(f"ֹͣ Goofish ʱɼʧ: {e}")
 
 
-# 创建FastAPI应用
+# FastAPIӦ
 app = FastAPI(
     title=settings.project_name,
     version=settings.version,
     lifespan=lifespan,
 )
 
-# 配置CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -233,14 +233,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 挂载静态文件目录
+# ؾ̬ļĿ¼
 static_path = Path(settings.static_dir)
 if static_path.exists():
     app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
-    logger.info(f"静态文件路径已挂载: /static -> {static_path.absolute()}")
+    logger.info(f"̬ļ·ѹ: /static -> {static_path.absolute()}")
 
 
-# 挂载API路由
+# API·
 from app.api import api_router
 
 app.include_router(api_router, prefix="/api/v1")
@@ -249,28 +249,28 @@ app.include_router(api_router, prefix="/api/v1")
 @app.get("/health")
 async def health_check():
     """
-    健康检查接口
+    ӿ
     
     Returns:
-        服务健康状态
+        񽡿״̬
     """
     from common.db.session import async_engine
     from sqlalchemy import text
     
-    # 检查数据库连接
+    # ݿ
     db_status = "unknown"
     try:
         async with async_engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
             db_status = "connected"
     except Exception as e:
-        logger.error(f"数据库连接检查失败: {str(e)}")
+        logger.error(f"ݿӼʧ: {str(e)}")
         db_status = "disconnected"
     
     return {
         "success": True,
         "code": 200,
-        "message": "服务运行正常",
+        "message": "",
         "data": {
             "service": settings.project_name,
             "version": settings.version,
@@ -282,9 +282,9 @@ async def health_check():
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
-    """将 HTTP 异常转换为项目统一的 HTTP 200 业务错误响应。"""
+    """ HTTP 쳣תΪĿͳһ HTTP 200 ҵӦ"""
     logger.warning(
-        "HTTP异常: {} - {}\n请求路径: {}\n请求方法: {}",
+        "HTTP쳣: {} - {}\n·: {}\n󷽷: {}",
         exc.status_code,
         exc.detail,
         request.url.path,
@@ -305,8 +305,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def request_validation_exception_handler(
     request: Request, exc: RequestValidationError
 ):
-    """将请求参数校验错误转换为项目统一的 HTTP 200 业务响应。"""
-    # 不记录完整的 Pydantic error 对象：其中可能包含请求体原文（Cookie、密码等敏感数据）。
+    """УתΪĿͳһ HTTP 200 ҵӦ"""
+    # ¼ Pydantic error пܰԭģCookieݣ
     error_fields = [
         {
             "loc": [str(part) for part in error.get("loc", ())],
@@ -315,7 +315,7 @@ async def request_validation_exception_handler(
         for error in exc.errors()
     ]
     logger.warning(
-        "请求参数校验失败: fields={}\n请求路径: {}\n请求方法: {}",
+        "Уʧ: fields={}\n·: {}\n󷽷: {}",
         error_fields,
         request.url.path,
         request.method,
@@ -325,7 +325,7 @@ async def request_validation_exception_handler(
         content={
             "success": False,
             "code": 400,
-            "message": "请求参数不正确",
+            "message": "ȷ",
             "data": None,
         },
     )
@@ -334,30 +334,30 @@ async def request_validation_exception_handler(
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     """
-    全局异常处理器
+    ȫ쳣
     
-    捕获所有未处理的异常,返回统一格式的错误响应
+    δ쳣,ͳһʽĴӦ
     """
-    # 记录错误日志
-    # 注意：loguru 默认对 message 调用 str.format(*args, **kwargs)。
-    # 如果用 f-string 把 str(exc) 拼进 message，且 str(exc) 中含有 '{xxx}' 字面量
-    # （例如 ResponseValidationError 的报错里就含有 dict repr），
-    # loguru 会把这些 '{xxx}' 误认为是 format 占位符，进而抛 KeyError，
-    # 让全局异常处理器自身崩溃，掩盖原始错误。
-    # 解决：把动态值通过位置参数传入，message 里用 '{}' 占位（args 内的 '{' 不会被二次 format）。
-    # 同时用 logger.opt(exception=exc) 让 loguru 自动附带 traceback，替代旧的 exc_info=True。
+    # ¼־
+    # ע⣺loguru Ĭ϶ message  str.format(*args, **kwargs)
+    #  f-string  str(exc) ƴ message str(exc) к '{xxx}' 
+    #  ResponseValidationError ıͺ dict repr
+    # loguru Щ '{xxx}' Ϊ format ռλ KeyError
+    # ȫ쳣ڸԭʼ
+    # Ѷֵ̬ͨλò룬message  '{}' ռλargs ڵ '{' ᱻ format
+    # ͬʱ logger.opt(exception=exc)  loguru Զ tracebackɵ exc_info=True
     logger.opt(exception=exc).error(
-        "全局异常捕获: {}: {}\n请求路径: {}\n请求方法: {}",
+        "ȫ쳣: {}: {}\n·: {}\n󷽷: {}",
         type(exc).__name__,
         str(exc),
         request.url.path,
         request.method,
     )
     
-    # 处理HTTPException
+    # HTTPException
     if isinstance(exc, HTTPException):
         return JSONResponse(
-            status_code=200,  # 统一返回200
+            status_code=200,  # ͳһ200
             content={
                 "success": False,
                 "code": exc.status_code,
@@ -366,26 +366,26 @@ async def global_exception_handler(request, exc):
             },
         )
     
-    # 已知基础设施异常转换为清晰提示，避免向用户暴露驱动堆栈和数据库地址。
+    # ֪ʩ쳣תΪʾû¶ջݿַ
     public_error_message = get_public_database_error_message(exc)
 
-    # 其他异常
+    # 쳣
     return JSONResponse(
-        status_code=200,  # 统一返回200
+        status_code=200,  # ͳһ200
         content={
             "success": False,
             "code": 500,
-            "message": public_error_message or f"服务器内部错误: {str(exc)}",
+            "message": public_error_message or f"ڲ: {str(exc)}",
             "data": None,
         },
     )
 
 
 def run_server():
-    """启动HTTP服务（供 main.py 的 __main__ 块调用）"""
+    """HTTP񣨹 main.py  __main__ ã"""
     import uvicorn
 
-    # 解析监听地址：默认 :: 双栈，Windows 或 IPv6 不可用时自动回退到 0.0.0.0
+    # ַĬ :: ˫ջWindows  IPv6 ʱԶ˵ 0.0.0.0
     listen_host = resolve_listen_host(settings.host, settings.service_port)
 
     uvicorn.run(
@@ -394,6 +394,6 @@ def run_server():
         port=settings.service_port,
         reload=False,
         log_level=settings.log_level.lower(),
-        # 保留公共日志工具配置，确保 Uvicorn 日志也进入普通日志和 error.log。
+        # ־ãȷ Uvicorn ־Ҳͨ־ error.log
         log_config=None,
     )

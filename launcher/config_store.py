@@ -1,10 +1,10 @@
 """
-配置持久化模块
+ó־ûģ
 
-功能：
-1. 保存用户填写的MySQL和Redis连接信息到本地文件
-2. 下次启动时自动加载已保存的配置
-3. 配置文件加密存储，防止明文泄露密码
+ܣ
+1. ûдMySQLRedisϢļ
+2. ´ʱԶѱ
+3. ļܴ洢ֹй¶
 """
 import base64
 import json
@@ -12,16 +12,16 @@ import os
 from pathlib import Path
 
 
-# 配置文件名
+# ļ
 _CONFIG_FILE = "connection.dat"
 
 
 def _get_config_path() -> Path:
     """
-    获取配置文件路径
+    ȡļ·
     
     Returns:
-        配置文件的完整路径
+        ļ·
     """
     from launcher.frozen_detect import get_project_root
     base_dir = get_project_root()
@@ -32,38 +32,38 @@ def _get_config_path() -> Path:
 
 def _simple_encode(text: str) -> str:
     """
-    简单编码，避免明文存储
+    򵥱룬Ĵ洢
     
     Args:
-        text: 原始文本
+        text: ԭʼı
     Returns:
-        Base64编码后的字符串
+        Base64ַ
     """
     return base64.b64encode(text.encode("utf-8")).decode("utf-8")
 
 
 def _simple_decode(encoded: str) -> str:
     """
-    简单解码
+    򵥽
     
     Args:
-        encoded: Base64编码的字符串
+        encoded: Base64ַ
     Returns:
-        解码后的原始文本
+        ԭʼı
     """
     return base64.b64decode(encoded.encode("utf-8")).decode("utf-8")
 
 
 def save_connection_config(config: dict) -> bool:
     """
-    保存连接配置到文件
+    õļ
     
-    对敏感字段（密码）做简单编码后保存。
+    ֶΣ룩򵥱󱣴档
     
     Args:
-        config: 连接配置字典，包含mysql和redis的连接信息
+        config: ֵ䣬mysqlredisϢ
     Returns:
-        True保存成功，False保存失败
+        TrueɹFalseʧ
     """
     try:
         save_data = {
@@ -86,10 +86,10 @@ def save_connection_config(config: dict) -> bool:
 
 def load_connection_config() -> dict | None:
     """
-    从文件加载连接配置
+    ļ
     
     Returns:
-        配置字典，如果文件不存在或读取失败返回None
+        ֵ䣬ļڻȡʧܷNone
     """
     config_path = _get_config_path()
     if not config_path.exists():
