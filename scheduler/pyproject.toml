@@ -28,7 +28,7 @@ dependencies = [
     "python-jose[cryptography]==3.3.0",
     "passlib[bcrypt]==1.7.4",
     "bcrypt==5.0.0",
-    "playwright",
+    "cloakbrowser[pipelines]",
     "Pillow>=10.0.0",
 ]
 
